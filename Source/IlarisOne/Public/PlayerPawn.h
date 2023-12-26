@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "InputActionValue.h"
 #include "PlayerPawn.generated.h"
 
 class UCameraComponent;
 class USpringArmComponent;
+class UInputMappingContext;
+class UInputAction;
 
 UCLASS()
 class ILARISONE_API APlayerPawn : public APawn
@@ -28,6 +31,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	TObjectPtr<UInputMappingContext> InputMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	TObjectPtr<UInputAction> ZoomAction;
+
+	void Zoom(const FInputActionValue& Value);
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

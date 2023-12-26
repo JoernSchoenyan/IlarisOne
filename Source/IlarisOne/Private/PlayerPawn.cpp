@@ -5,6 +5,8 @@
 #include "PlayerPawn.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
 
 // Sets default values
 APlayerPawn::APlayerPawn()
@@ -16,6 +18,7 @@ APlayerPawn::APlayerPawn()
 	SpringArmComponent->SetupAttachment(GetRootComponent());
 	SpringArmComponent->TargetArmLength = 700.0f;
 	SpringArmComponent->bDoCollisionTest = false;
+	SpringArmComponent->bEnableCameraLag = true;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
@@ -26,6 +29,23 @@ void APlayerPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(InputMappingContext, 0);
+		}
+	}
+}
+
+void APlayerPawn::Zoom(const FInputActionValue &Value)
+{
+	const float DirectionValue = Value.Get<float>();
+
+	if (Controller && (DirectionValue != 0.0f))
+	{
+		SpringArmComponent->TargetArmLength -= DirectionValue * 100.0f;
+	}
 }
 
 // Called every frame
@@ -40,4 +60,8 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered, this, &APlayerPawn::Zoom);
+	}
 }

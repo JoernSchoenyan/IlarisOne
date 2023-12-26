@@ -1,0 +1,3 @@
+# Unreal Engine 5 tactical RPG based on Ilaris
+
+This is just a small project to learn stuff. I'm following along the [tutorial series from Alex Quevillon](https://www.youtube.com/watch?v=bO2Iml149tU&list=PLBLmKCAjA25CKFIvmaA8y3tsX_URgkX4O) but I'm translating as much Blueprints as possible into C++ code. Additionally, I want to use modern features of UE5 like Raytracing, the Enhanced Input System, maybe the Procedural Generation Framework. As a ruleset, I want to use [Ilaris](https://ilarisblog.wordpress.com/downloads/).

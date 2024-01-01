@@ -7,6 +7,8 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Math/UnrealMathUtility.h"
+#include "IlarisOne/DebugMacros.h"
 
 // Sets default values
 APlayerPawn::APlayerPawn()
@@ -42,10 +44,44 @@ void APlayerPawn::Zoom(const FInputActionValue &Value)
 {
 	const float DirectionValue = Value.Get<float>();
 
-	if (Controller && (DirectionValue != 0.0f))
+	if (GetController() && (DirectionValue != 0.0f))
 	{
-		SpringArmComponent->TargetArmLength -= DirectionValue * 100.0f;
+		float NewTargetArmLength = SpringArmComponent->TargetArmLength - DirectionValue * ZoomSpeedFactor;
+		SpringArmComponent->TargetArmLength = FMath::Clamp(NewTargetArmLength, MinSpringArmLength, MaxSpringArmLength);
 	}
+}
+
+void APlayerPawn::MoveCamera(const FInputActionValue &Value)
+{
+    const FVector2D DirectionValue = Value.Get<FVector2D>();
+
+    if (GetController())
+    {
+        FVector NewLocation = GetActorLocation();
+
+        // Erhalten Sie die Vorwärts- und Rechtsvektoren des Pawns
+        FVector ForwardDirection = GetActorForwardVector();
+        FVector RightDirection = GetActorRightVector();
+
+        // Passen Sie die Position basierend auf der Eingabe und der Drehung des Pawns an
+        NewLocation += (ForwardDirection * DirectionValue.X) + (RightDirection * DirectionValue.Y);
+
+        SetActorLocation(NewLocation);
+    }
+}
+
+void APlayerPawn::RotateCameraRight(const FInputActionValue &Value)
+{
+	FRotator NewRotation = GetActorRotation() + FRotator(0.0f, -45.0f, 0.0f);
+
+	SetActorRotation(NewRotation);
+}
+
+void APlayerPawn::RotateCameraLeft(const FInputActionValue &Value)
+{
+	FRotator NewRotation = GetActorRotation() + FRotator(0.0f, 45.0f, 0.0f);
+
+	SetActorRotation(NewRotation);
 }
 
 // Called every frame
@@ -63,5 +99,8 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered, this, &APlayerPawn::Zoom);
+		EnhancedInputComponent->BindAction(CameraMovementAction, ETriggerEvent::Triggered, this, &APlayerPawn::MoveCamera);
+		EnhancedInputComponent->BindAction(CameraRotateRightAction, ETriggerEvent::Triggered, this, &APlayerPawn::RotateCameraRight);
+		EnhancedInputComponent->BindAction(CameraRotateLeftAction, ETriggerEvent::Triggered, this, &APlayerPawn::RotateCameraLeft);
 	}
 }

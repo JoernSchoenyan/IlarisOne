@@ -37,7 +37,31 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<UInputAction> ZoomAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	TObjectPtr<UInputAction> CameraMovementAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	TObjectPtr<UInputAction> CameraRotateRightAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	TObjectPtr<UInputAction> CameraRotateLeftAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	float MaxSpringArmLength = 5000.0f;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	float MinSpringArmLength = 100.0f;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	float ZoomSpeedFactor = 100.0f;
+
+	UPROPERTY(BlueprintReadOnly, Category = Input)
+	FRotator DesiredRotation;
+
 	void Zoom(const FInputActionValue& Value);
+	void MoveCamera(const FInputActionValue& Value);
+	void RotateCameraRight(const FInputActionValue& Value);
+	void RotateCameraLeft(const FInputActionValue& Value);
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
